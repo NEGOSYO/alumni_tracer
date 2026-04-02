@@ -14,7 +14,9 @@ import '../state/user_store.dart';
 /// Override at build/run time with:
 /// `--dart-define=API_BASE_URL=https://alumnitracking.ct.ws`
 class ApiService {
-  static const String _apiBaseUrlDefine = String.fromEnvironment('API_BASE_URL');
+  static const String _apiBaseUrlDefine = String.fromEnvironment(
+    'API_BASE_URL',
+  );
   static const String _productionBaseUrl = 'https://alumnitracking.ct.ws';
 
   static String get baseUrl {
@@ -39,10 +41,7 @@ class ApiService {
     return _productionBaseUrl;
   }
 
-  static Uri uri(
-    String endpoint, {
-    Map<String, dynamic>? queryParameters,
-  }) {
+  static Uri uri(String endpoint, {Map<String, dynamic>? queryParameters}) {
     final base = baseUrl;
     final normalizedEndpoint = endpoint.replaceFirst(RegExp(r'^/+'), '');
     final url = '$base/$normalizedEndpoint';
@@ -55,9 +54,7 @@ class ApiService {
     );
   }
 
-  static Map<String, String> authHeaders({
-    Map<String, String>? extra,
-  }) {
+  static Map<String, String> authHeaders({Map<String, String>? extra}) {
     final headers = <String, String>{...?(extra)};
     final token = _accessToken();
     if (token.isNotEmpty) {
@@ -66,15 +63,8 @@ class ApiService {
     return headers;
   }
 
-  static Map<String, String> jsonHeaders({
-    Map<String, String>? extra,
-  }) {
-    return authHeaders(
-      extra: {
-        'Content-Type': 'application/json',
-        ...?extra,
-      },
-    );
+  static Map<String, String> jsonHeaders({Map<String, String>? extra}) {
+    return authHeaders(extra: {'Content-Type': 'application/json', ...?extra});
   }
 
   static String _normalizeBaseUrl(String value) {
