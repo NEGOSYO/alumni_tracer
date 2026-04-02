@@ -31,12 +31,12 @@ class ApiService {
       if (!isLocalWebHost) {
         return _productionBaseUrl;
       }
-      return 'http://localhost/alumni_tracer_php-php-final';
+      return _productionBaseUrl;
     }
     if (defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://10.0.2.2/alumni_tracer_php-php-final';
+      return _productionBaseUrl;
     }
-    return 'http://localhost/alumni_tracer_php-php-final';
+    return _productionBaseUrl;
   }
 
   static Uri uri(
