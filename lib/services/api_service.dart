@@ -6,10 +6,7 @@ import '../state/user_store.dart';
 /// Centralized API URL builder for the PHP backend.
 ///
 /// Default base URL behavior:
-/// - Web on localhost: `http://localhost/alumni_tracer_php-php-final`
-/// - Web on deployed hosts: `https://alumnitracking.ct.ws`
-/// - Android emulator: `http://10.0.2.2/alumni_tracer_php-php-final`
-/// - Everything else (iOS simulator, desktop): `http://localhost/alumni_tracer_php-php-final`
+/// - Default for all platforms: `https://alumnitracking.ct.ws`
 ///
 /// Override at build/run time with:
 /// `--dart-define=API_BASE_URL=https://alumnitracking.ct.ws`

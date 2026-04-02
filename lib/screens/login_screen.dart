@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'register_screen.dart';
@@ -37,6 +38,29 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  Future<http.Response> _postAuthRequest(
+    Uri url, {
+    required Map<String, String> payload,
+  }) async {
+    if (kIsWeb) {
+      final webResponse = await http.post(url, body: payload);
+      final body = webResponse.body.trim();
+      final contentType = (webResponse.headers['content-type'] ?? '')
+          .toLowerCase();
+      final looksHtml = contentType.contains('text/html') && !body.startsWith('{');
+
+      if (body.isNotEmpty && !looksHtml) {
+        return webResponse;
+      }
+    }
+
+    return http.post(
+      url,
+      headers: ApiService.jsonHeaders(),
+      body: jsonEncode(payload),
+    );
+  }
+
   Future<void> _handleLogin() async {
     final emailError = EmailValidator.validate(_emailController.text);
     if (emailError != null) {
@@ -52,13 +76,12 @@ class _LoginPageState extends State<LoginPage> {
     final url = ApiService.uri('login.php');
 
     try {
-      final response = await http.post(
+      final response = await _postAuthRequest(
         url,
-        headers: ApiService.jsonHeaders(),
-        body: jsonEncode({
+        payload: {
           "email": _emailController.text.trim(),
           "password": _passwordController.text,
-        }),
+        },
       ).timeout(const Duration(seconds: 15));
 
       if (response.body.trim().isEmpty) {
@@ -127,7 +150,8 @@ class _LoginPageState extends State<LoginPage> {
       _showError(
         "Unable to reach the login server."
         "\n\nEndpoint: $url"
-        "\n\nDetails: $e",
+        "\n\nDetails: $e"
+        "${kIsWeb ? "\n\nIf this only happens on the deployed web app, the browser is likely blocking the InfinityFree request because of CORS or preflight rules." : ""}",
       );
       debugPrint("Login error: $e");
     } finally {
@@ -163,13 +187,12 @@ class _LoginPageState extends State<LoginPage> {
     required String newPassword,
   }) async {
     try {
-      final response = await http.post(
+      final response = await _postAuthRequest(
         ApiService.uri('forgot_password.php'),
-        headers: ApiService.jsonHeaders(),
-        body: jsonEncode({
+        payload: {
           "email": email.trim(),
           "newPassword": newPassword,
-        }),
+        },
       );
 
       final decoded = jsonDecode(response.body);
