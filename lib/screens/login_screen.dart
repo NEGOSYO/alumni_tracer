@@ -59,7 +59,15 @@ class _LoginPageState extends State<LoginPage> {
           "email": _emailController.text.trim(),
           "password": _passwordController.text,
         }),
-      );
+      ).timeout(const Duration(seconds: 15));
+
+      if (response.body.trim().isEmpty) {
+        _showError(
+          "Server returned an empty response (${response.statusCode})."
+          "\n\nEndpoint: $url",
+        );
+        return;
+      }
 
       Map<String, dynamic> data;
       try {
@@ -69,6 +77,7 @@ class _LoginPageState extends State<LoginPage> {
         final snippet = response.body.trim();
         _showError(
           "Server returned an invalid response (${response.statusCode})."
+          "\n\nEndpoint: $url"
           "${snippet.isNotEmpty ? "\n\n$snippet" : ""}",
         );
         return;
@@ -103,15 +112,23 @@ class _LoginPageState extends State<LoginPage> {
         );
         _navigateTo(role, user);
       } else {
+        final message = data['message']?.toString().trim() ?? '';
         _showError(
-          data['message']?.toString() ??
-              (response.statusCode == 200
-                  ? "Unable to sign in with the provided credentials."
-                  : "Server Error: ${response.statusCode}"),
+          message.isNotEmpty
+              ? "$message\n\nEndpoint: $url"
+              : (response.statusCode == 200
+                    ? "Unable to sign in with the provided credentials."
+                        "\n\nEndpoint: $url"
+                    : "Server Error: ${response.statusCode}"
+                        "\n\nEndpoint: $url"),
         );
       }
     } catch (e) {
-      _showError("Check your internet or server connection.");
+      _showError(
+        "Unable to reach the login server."
+        "\n\nEndpoint: $url"
+        "\n\nDetails: $e",
+      );
       debugPrint("Login error: $e");
     } finally {
       if (mounted) setState(() => _isLoading = false);
