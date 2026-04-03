@@ -6,15 +6,20 @@ import '../state/user_store.dart';
 /// Centralized API URL builder for the PHP backend.
 ///
 /// Default base URL behavior:
-/// - Default for all platforms: `https://alumnitracking.ct.ws`
+/// - Web on deployed hosts: `/api` (rewrite this on Render to your backend)
+/// - Web on localhost: `http://localhost/alumni_php`
+/// - Android emulator: `http://10.0.2.2/alumni_php`
+/// - Other mobile / desktop: `http://localhost/alumni_php`
 ///
 /// Override at build/run time with:
-/// `--dart-define=API_BASE_URL=https://alumnitracking.ct.ws`
+/// `--dart-define=API_BASE_URL=https://your-backend-service.onrender.com`
 class ApiService {
   static const String _apiBaseUrlDefine = String.fromEnvironment(
     'API_BASE_URL',
   );
-  static const String _productionBaseUrl = 'https://alumnitracking.ct.ws';
+  static const String _webProxyBaseUrl = '/api';
+  static const String _localBaseUrl = 'http://localhost/alumni_php';
+  static const String _androidEmulatorBaseUrl = 'http://10.0.2.2/alumni_php';
 
   static String get baseUrl {
     final defined = _apiBaseUrlDefine.trim();
@@ -27,15 +32,15 @@ class ApiService {
           host == 'localhost' ||
           host == '127.0.0.1' ||
           host == '0.0.0.0';
-      if (!isLocalWebHost) {
-        return _productionBaseUrl;
+      if (isLocalWebHost) {
+        return _localBaseUrl;
       }
-      return _productionBaseUrl;
+      return _webProxyBaseUrl;
     }
     if (defaultTargetPlatform == TargetPlatform.android) {
-      return _productionBaseUrl;
+      return _androidEmulatorBaseUrl;
     }
-    return _productionBaseUrl;
+    return _localBaseUrl;
   }
 
   static Uri uri(String endpoint, {Map<String, dynamic>? queryParameters}) {

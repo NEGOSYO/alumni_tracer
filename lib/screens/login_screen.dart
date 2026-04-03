@@ -151,7 +151,7 @@ class _LoginPageState extends State<LoginPage> {
         "Unable to reach the login server."
         "\n\nEndpoint: $url"
         "\n\nDetails: $e"
-        "${kIsWeb ? "\n\nIf this only happens on the deployed web app, the browser is likely blocking the InfinityFree request because of CORS or preflight rules." : ""}",
+        "${kIsWeb ? "\n\nIf this only happens on the deployed web app, check your Render rewrite and backend CORS or preflight configuration." : ""}",
       );
       debugPrint("Login error: $e");
     } finally {
